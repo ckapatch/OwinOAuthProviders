@@ -366,13 +366,13 @@ namespace Owin.Security.Providers.Yahoo
             _logger.WriteVerbose("ObtainUserProfile");
 
             string nonce = Guid.NewGuid().ToString("N");
-            string requestUrl = "https://query.yahooapis.com/v1/yql";
+            string requestUrl = "https://social.yahooapis.com/v1/user/me/profile";
 
             var queryParts = new Dictionary<string, string>
             {
-                { "q", "select * from social.profile where guid=me" },
                 { "format", "json" }
             };
+
             var authorizationParts = new SortedDictionary<string, string>
             {
                 { "oauth_consumer_key", consumerKey },
@@ -427,17 +427,18 @@ namespace Owin.Security.Providers.Yahoo
             string responseText = await response.Content.ReadAsStringAsync();
             JObject responseObject = JObject.Parse(responseText);
 
-            var queryObject = responseObject.SelectToken("query");
-            if (queryObject != null)
-            {
-                int count = (int) queryObject.SelectToken("count");
-                if (count > 0)
-                {
-                    JObject userCard = (JObject)queryObject.SelectToken("results.profile");
+            var queryObject = responseObject.SelectToken("profile");
+            return (JObject)queryObject;
+            //if (queryObject != null)
+            //{
+            //    int count = (int)queryObject.SelectToken("count");
+            //    if (count > 0)
+            //    {
+            //        JObject userCard = (JObject)queryObject.SelectToken("results.profile");
 
-                    return userCard;
-                }
-            }
+            //        return userCard;
+            //    }
+            //}
 
             return null;
         }
